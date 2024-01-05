@@ -1,9 +1,15 @@
 'use client';
 import { signOut, useSession } from 'next-auth/react';
 import Link from 'next/link';
+import { use } from 'react';
 
 const Header = () => {
-  const { status } = useSession();
+  const { status, data } = useSession();
+  let username = data?.user?.name || data?.user?.email;
+
+  if (username?.includes(' ')) {
+    username = username?.split(' ')[0];
+  }
 
   return (
     <header className='flex items-center justify-between'>
@@ -18,12 +24,17 @@ const Header = () => {
       </nav>
       <nav className='flex items-center gap-4 text-gray-500 font-semibold'>
         {status === 'authenticated' && (
-          <button
-            onClick={() => signOut()}
-            className='bg-primary text-white px-6 py-2 rounded-lg'
-          >
-            Logout
-          </button>
+          <>
+            <Link className='capitalize whitespace-nowrap' href='/profile'>
+              Hello, {username}
+            </Link>
+            <button
+              onClick={() => signOut()}
+              className='bg-primary text-white px-6 py-2 rounded-lg'
+            >
+              Logout
+            </button>
+          </>
         )}
 
         {status === 'unauthenticated' && (
