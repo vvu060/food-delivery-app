@@ -42,7 +42,7 @@ const RegisterPage = () => {
         <div className='my-4 text-center'>
           User Created <br /> Now you can{' '}
           <Link href='/login' className='underline'>
-            login &raquo
+            login &raquo;
           </Link>{' '}
         </div>
       )}
