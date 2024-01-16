@@ -3,6 +3,7 @@ import bcrypt from 'bcrypt';
 
 const UserSchema = new Schema(
   {
+    name: { type: String },
     email: { type: String, required: true, unique: true },
     password: {
       type: String,
@@ -15,6 +16,11 @@ const UserSchema = new Schema(
         }
       },
     },
+    phone: { type: String },
+    streetAddress: { type: String },
+    city: { type: String },
+    postalCode: { type: String },
+    country: { type: String },
   },
   { timestamps: true }
 );
