@@ -3,11 +3,11 @@ import { useSession } from 'next-auth/react';
 import { redirect } from 'next/navigation';
 import Image from 'next/image';
 import { useEffect, useState } from 'react';
+import toast from 'react-hot-toast';
 
 const ProfilePage = () => {
   const { status, data } = useSession();
   const [userName, setUserName] = useState('');
-  const [saved, setSaved] = useState(false);
 
   useEffect(() => {
     if (status === 'authenticated') {
@@ -19,9 +19,9 @@ const ProfilePage = () => {
     return <p>Loading...</p>;
   }
 
-  if (status === 'unauthenticated') {
-    return redirect('/login');
-  }
+  // if (status === 'unauthenticated') {
+  //   return redirect('/login');
+  // }
 
   const userImage = data?.user?.image;
 
@@ -29,18 +29,27 @@ const ProfilePage = () => {
     e: React.FormEvent<HTMLFormElement>
   ) => {
     e.preventDefault();
-    setSaved(false);
-    const response = await fetch('/api/profile', {
-      method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ name: userName }),
+
+    const savingPromise = new Promise<void>(async (resolve, reject) => {
+      const response = await fetch('/api/profile', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ name: userName }),
+      });
+      if (response.ok) {
+        resolve();
+      } else {
+        reject();
+      }
     });
 
-    if (response.ok) {
-      setSaved(true);
-    }
+    await toast.promise(savingPromise, {
+      loading: 'Saving...',
+      success: 'Profile Saved!',
+      error: 'Error saving.',
+    });
   };
 
   return (
@@ -48,11 +57,6 @@ const ProfilePage = () => {
       <h1 className='text-center text-primary text-4xl mb-4'>Profile</h1>
 
       <div className='max-w-md mx-auto'>
-        {saved && (
-          <h2 className='text-center bg-green-100 p-4 border-2 border-green-400 rounded-md'>
-            Profile Saved!
-          </h2>
-        )}
         <div className='flex gap-2 items-center'>
           {userImage && (
             <div className='p-2 rounded-md relative'>
@@ -63,7 +67,6 @@ const ProfilePage = () => {
                 width={250}
                 className='rounded-md w-full h-full mb-1'
               />
-              <button type='button'>Edit</button>
             </div>
           )}
           <form className='grow' onSubmit={handleProfileInfoUpdate}>
